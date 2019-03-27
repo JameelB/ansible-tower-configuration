@@ -1,0 +1,4 @@
+# Playbook for tearing down cluster
+---
+- debug:
+    msg: "Deprovisioning cluster..."

@@ -74,6 +74,16 @@ cluster_workflow_job_template_desc: "Provision Openshift 3.11 cluster"
 
 cluster_workflow_job_template_openshift_auth: "Openshift_Authenticate_tower_pod"
 
+#                            #
+# Cluster teardown templates #
+#                            #
+
+cluster_job_template_teardown_name: "Deprovision Cluster"
+cluster_job_template_teardown_desc: "Deprovision Openshift 3.11 cluster"
+cluster_job_template_teardown_type: 'run'
+cluster_job_template_teardown_playbook: 'playbooks/cluster_teardown.yml'
+cluster_job_template_teardown_project: "" # Change to {{ tower_configuration_project_name }}
+
 # Auth
 
 tower_pod_openshift_user: ""
