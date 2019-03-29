@@ -1,4 +1,3 @@
-# Playbook for tearing down cluster
 ---
 - name: Delete Autoscaling Groups for {{ aws_cluster_name }}
   ec2_asg: 
@@ -72,7 +71,26 @@
   register: aws_delete_network_interfaces
   failed_when: false
   with_items: "{{ aws_network_interfaces.network_interfaces }}"
+  loop_control:
+    label: "{{ item.network_interface_id }}"
+
+- name: Ensure all Network Interfaces for {{ aws_cluster_name }} are Deleted
+  ec2_eni_facts:
+    aws_access_key: "{{ fheng_access_key_id }}"
+    aws_secret_key: "{{ fheng_secret_access_key }}"
+    region: "{{ aws_region }}"
+    filters:
+      group-name: "{{ aws_cluster_name }}"
+  register: aws_network_interfaces
+  retries: 30
+  delay: 5
+  until: aws_network_interfaces.network_interfaces == []
   
+- name: Failed to remove network interfaces for {{ aws_cluster_name }}
+  fail:
+    msg: "Network interfaces for {{ aws_cluster_name }} were not removed successfully"
+  when: aws_network_interfaces.network_interfaces != []
+
 - name: Get Security Groups for {{ aws_cluster_name }}
   ec2_group_facts:
     aws_access_key: "{{ fheng_access_key_id }}"
@@ -123,6 +141,8 @@
     region: "{{ aws_region }}"
     state: absent
   with_items: "{{ aws_volumes.volumes }}"
+  loop_control:
+    label: "{{ item.id }}"
   
 - name: Get VPCs for {{ aws_cluster_name }}
   ec2_vpc_net_facts:
